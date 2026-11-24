@@ -1,80 +1,59 @@
 ---
-title: VERA AI API
+title: VERA AI
 emoji: 🔎
 colorFrom: blue
 colorTo: cyan
-sdk: docker
-app_port: 7860
+sdk: gradio
+python_version: "3.12"
+app_file: app.py
 ---
 
-# VERA AI — Website + Inference API
+# VERA AI — Image Authenticity Detection
 
-Repository gồm giao diện HTML tĩnh và API Python để dự đoán ảnh REAL/AI bằng **CLIP + FFT/SRM + ensemble**. Mình đã đối chiếu file huấn luyện gốc: mô hình thực tế là CLIP + FFT ensemble, không phải ResNet50; vì vậy giao diện đã được sửa để tránh mô tả sai kiến trúc.
+Space Gradio dùng model đã huấn luyện **CLIP + FFT/SRM + Ensemble** để phân loại ảnh REAL/AI.
+
+## Chạy trên Hugging Face Spaces
+
+- SDK: Gradio.
+- Với tài khoản Free, chọn ZeroGPU nếu Space của bạn đủ điều kiện; CPU Basic cho Gradio Spaces hiện yêu cầu gói đăng ký phù hợp.
+- File khởi chạy: `app.py`.
+- Model bundle: `backend/models/ml_clip_bundle_final.pkl`.
+- Lần khởi động đầu, Transformers tải CLIP vision model từ Hugging Face; cần chờ quá trình tải hoàn tất.
 
 ## Cấu trúc
 
 ```text
-VERA-AI/
+VERA_AI/
+├── app.py
 ├── index.html
 ├── backend/
-│   ├── vera_ai_final_fixed.py       # FastAPI inference server
-│   ├── training_pipeline_colab.py   # file Colab gốc, giữ riêng để huấn luyện
+│   ├── vera_ai_final_fixed.py
+│   ├── training_pipeline_colab.py
 │   └── models/
-│       └── ml_clip_bundle_final.pkl # bạn cần tự chép model bundle vào đây
+│       └── ml_clip_bundle_final.pkl
 ├── requirements.txt
 └── README.md
 ```
 
-## 1. Chuẩn bị model đã huấn luyện
+## Model và xử lý
 
-API không tự huấn luyện lại 70.000 ảnh khi khởi động. Nó cần file `ml_clip_bundle_final.pkl` do pipeline Colab tạo ra. Trong Google Drive, file được lưu ở:
+Ứng dụng không huấn luyện lại dữ liệu khi khởi động. `app.py` nạp bundle có sẵn và gọi hàm `predict_image()` trong backend. Hàm dự đoán sử dụng CLIP embedding kết hợp đặc trưng FFT/SRM và các model ensemble đã lưu.
 
-`/content/drive/MyDrive/ml_clip_features_70k_robust/ml_clip_bundle_final.pkl`
+## Giao diện website
 
-Tải file đó về máy và đặt vào `backend/models/ml_clip_bundle_final.pkl`. Không đưa ZIP 70.000 ảnh hoặc dữ liệu cá nhân lên GitHub. File model có thể lớn; nếu vượt giới hạn GitHub, lưu ở kho model riêng và cấu hình biến môi trường `VERA_MODEL_BUNDLE` trỏ đến vị trí đã tải về.
+`index.html` là giao diện web riêng. GitHub Pages chỉ phục vụ giao diện HTML; Space Gradio hiện là ứng dụng phân tích ảnh độc lập. Chưa kết nối giao diện `index.html` với API công khai trong bước này.
 
-## 2. Chạy backend trên máy
+## API FastAPI cục bộ
 
-Python khuyến nghị 3.10–3.12 (không khuyến nghị Python 3.14 cho bộ thư viện ML này).
+Backend FastAPI gốc vẫn được giữ tại `backend/vera_ai_final_fixed.py` và có thể chạy cục bộ bằng:
 
 ```bash
-python -m venv .venv
-# Windows PowerShell:
-.venv\Scripts\Activate.ps1
-# macOS/Linux:
-# source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn backend.vera_ai_final_fixed:app --host 0.0.0.0 --port 8000
 ```
 
-Kiểm tra `http://127.0.0.1:8000/health`. Lần đầu, Transformers có thể tải CLIP `openai/clip-vit-base-patch32` từ Hugging Face; cần internet và đủ RAM. Sau đó mở `index.html` bằng trình duyệt. Nếu chạy frontend và backend trên cùng máy, API mặc định là `http://127.0.0.1:8000`.
+## Lưu ý
 
-## 3. Kết nối GitHub Pages với backend đã deploy
-
-GitHub Pages chỉ chạy HTML/CSS/JavaScript, **không chạy Python hoặc mô hình ML**. Hãy deploy thư mục backend lên một dịch vụ Python hỗ trợ FastAPI, sau đó trong `index.html` sửa dòng:
-
-```js
-const VERA_API_URL = (window.VERA_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
-```
-
-thành URL HTTPS thật của backend, ví dụ `https://ten-dich-vu-cua-ban.example` (thay bằng URL do nhà cung cấp cấp). Đồng thời đặt biến môi trường backend `VERA_CORS_ORIGINS` thành domain GitHub Pages của repo, ví dụ `https://TEN-USER.github.io` hoặc domain Pages chính xác của bạn.
-
-## 4. Đưa giao diện lên GitHub Pages
-
-1. Tạo repository tên `VERA-AI` và upload `index.html`, `backend/`, `requirements.txt`, `README.md`.
-2. Vào **Settings → Pages**.
-3. Chọn **Deploy from a branch**, branch `main`, folder `/ (root)`, rồi Save.
-4. Đợi GitHub Pages cấp URL. URL đó chỉ phục vụ giao diện; API phải được deploy riêng.
-
-## API
-
-- `GET /health`: kiểm tra bundle có tồn tại không.
-- `POST /api/predict`: multipart form field `file`, trả `label` (`REAL`/`AI`), `ai_probability`, `confidence`, `threshold` và xác suất từng model.
-
-## Lưu ý quan trọng
-
-- Chưa thể dự đoán thật nếu chưa có `ml_clip_bundle_final.pkl`.
-- File `training_pipeline_colab.py` là script xuất từ notebook Colab, có lệnh magic `!pip` và mount Google Drive; chạy trong Colab theo các cell, không dùng làm lệnh khởi động API.
-- API hiện chỉ trả kết quả phân loại và xác suất. Grad-CAM không được giả lập; kiến trúc CLIP + FFT hiện tại cũng không phải ResNet50.
-- Miễn phí 24/7 không được đảm bảo bởi GitHub Pages; backend miễn phí có thể sleep, giới hạn RAM/CPU hoặc thay đổi URL.
-- Không commit khóa API, thông tin tài khoản, dataset lớn hoặc model bundle nhạy cảm vào repository công khai.
+- Kết quả phụ thuộc vào model bundle và CLIP checkpoint tải được.
+- ZeroGPU chỉ cấp GPU trong thời gian hàm được đánh dấu `@spaces.GPU` thực thi; lượt chạy có thể phải chờ hàng đợi và chịu giới hạn quota.
+- Không đưa dữ liệu cá nhân hoặc bí mật vào Space công khai.
