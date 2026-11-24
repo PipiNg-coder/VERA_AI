@@ -1,12 +1,5 @@
 ---
-title: VERA AI
-emoji: 🔎
-colorFrom: blue
-colorTo: cyan
-sdk: gradio
-python_version: "3.12"
-app_file: app.py
----
+
 
 # VERA AI — Image Authenticity Detection
 
