@@ -328,6 +328,75 @@ nav .navlinks a.active{color:#fff;text-shadow:0 0 14px #35caff}
 #page-overview .guide-foot{font-size:13px !important;line-height:1.65 !important;color:#a5bbda !important;margin-top:19px !important}
 @media(max-width:480px){#page-overview .guide-card p{font-size:12px !important}#page-overview .guide-foot{font-size:12px !important}}
 </style>
+<style>
+/* Nhiều ảnh · khối Tổng hợp · danh sách kết quả + CSV */
+.sumbox{align-items:stretch!important;justify-content:flex-start!important;text-align:left!important;padding:23px!important;gap:0}
+.sumhead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid #164b83;flex-wrap:wrap}
+.sumnote{font-size:12px;color:#a9bfdf}
+.sumstats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:16px 0;border-bottom:1px solid #164b83}
+.sumstats>div{padding:0 16px;border-left:1px solid #164b83}.sumstats>div:first-child{padding-left:0;border-left:0}
+.sumstats small{display:block;font-size:12px;color:#a9bfdf;margin-bottom:6px}
+.sumstats b{display:block;font-size:34px;font-weight:600;line-height:1.1;color:#f5f8ff}
+.c-ai{color:#ff5a5f!important}.c-real{color:#39e6b0!important}
+.sumbar{display:flex;height:10px;border-radius:10px;background:#132b49;overflow:hidden;margin:18px 0 12px}
+.sumbar span{display:block;height:100%;width:0;transition:width .5s}.sb-ai{background:#ff5a5f}.sb-real{background:#39e6b0}
+.sumfoot{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#a9bfdf}.sumfoot b{color:#f5f8ff;font-weight:700}
+.results-sec{display:none;margin-top:26px}.results-sec.show{display:block}
+.rtoolbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.rtabs{display:flex;gap:6px;padding:6px;border:1px solid #164b83;border-radius:12px;background:#061329}
+.rtabs button{border:0;background:transparent;color:#8da6c9;font:600 12px 'Montserrat';padding:9px 14px;border-radius:8px;cursor:pointer}
+.rtabs button.active{background:#0b3970;color:#fff;box-shadow:0 0 0 1px #1688ff inset}
+.rright{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.rright input{background:#061329;border:1px solid #164b83;color:#eef6ff;border-radius:10px;padding:11px 14px;font:500 12px 'Montserrat';min-width:200px;outline:none}
+.rright input:focus{border-color:#37bfff}
+.rbtn{background:#061329;border:1px solid #164b83;color:#dceaff;border-radius:10px;padding:11px 16px;font:700 12px 'Montserrat';cursor:pointer}
+.rbtn:hover{border-color:#37bfff}.rbtn.gold{color:#8fd8ff;border-color:#1c6397}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.rcard{border:1px solid #164b83;border-radius:14px;background:#061329;overflow:hidden;position:relative}
+.rcard[hidden]{display:none}
+.rimg{height:230px;background:#020813;display:grid;place-items:center}
+.rimg img{width:100%;height:100%;object-fit:cover;display:block}
+.rx{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:0;background:#020813cc;color:#eef6ff;cursor:pointer;font-size:13px;line-height:1;opacity:0;transition:opacity .15s}
+.rcard:hover .rx{opacity:1}
+.rinfo{padding:13px 15px 15px;border-top:1px solid #164b83}
+.rname{font:500 11px 'DM Mono',monospace!important;color:#a9bfdf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rrow{display:flex;justify-content:space-between;align-items:center;margin-top:9px}
+.rlabel{font-weight:700;font-size:14px;color:#a9bfdf}.rpct{font-weight:600;font-size:16px;color:#f5f8ff}
+.rlabel.ai{color:#ff5a5f}.rlabel.real{color:#39e6b0}.rlabel.busy{color:#39d8ff}.rlabel.err{color:#ffcc7d}
+.rempty{grid-column:1/-1;text-align:center;color:#8da6c9;font-size:13px;padding:30px 0}
+@media(max-width:700px){.sumstats b{font-size:26px}.sumstats>div{padding:0 9px}.rright input{min-width:0;flex:1}}
+</style>
+<style>
+/* So sánh ảnh: 3 chế độ xem */
+.cstats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.cstat{border:1px solid #164b83;border-radius:14px;background:#061329;padding:18px 20px;min-width:0}
+.cstat small{display:block;font-size:12px;color:#a9bfdf;margin-bottom:10px}
+.cstat b{display:block;font-size:30px;font-weight:600;color:#f5f8ff;line-height:1.2}
+.cstat b i{font-style:normal;font-size:13px;font-weight:500;color:#8da6c9;margin-left:4px}
+.cstat b.clevel{font-size:17px;font-weight:700;line-height:1.35;padding-top:6px}
+.clevel.low{color:#39e6b0}.clevel.mid{color:#ffcc7d}.clevel.high{color:#ff5a5f}
+.ctabs{display:flex;gap:26px;margin:22px 0 0;border-bottom:1px solid #164b83;flex-wrap:wrap}
+.ctabs button{background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:12px 2px;color:#8da6c9;font:600 14px 'Montserrat';cursor:pointer}
+.ctabs button:hover{color:#dceaff}.ctabs button.active{color:#fff;border-bottom-color:#39d8ff}
+.cview{margin-top:20px}
+.cframe{position:relative;margin:0 auto;max-width:100%;border:1px solid #164b83;border-radius:14px;overflow:hidden;background:#020813;user-select:none;touch-action:pan-y;line-height:0}
+.cframe canvas{display:block;width:100%;height:auto}
+.cframe canvas+canvas{position:absolute;inset:0;height:100%}
+.cframe canvas{display:none}
+.cframe[data-v="slide"] #cvOrig,.cframe[data-v="slide"] #cvEdit{display:block}
+.cframe[data-v="overlay"] #cvOrig,.cframe[data-v="overlay"] #cvOverlay{display:block}
+.cframe[data-v="diff"] #cvDiff{display:block;position:static;height:auto}
+.cframe[data-v="slide"]{cursor:ew-resize}
+.ctag{position:absolute;top:14px;background:#020813cc;color:#eef6ff;font:600 12px 'Montserrat';padding:7px 11px;border-radius:8px;line-height:1.2;z-index:3;pointer-events:none}
+.ctag.l{left:14px}.ctag.r{right:14px}
+.chandle{position:absolute;top:0;bottom:0;width:2px;background:#fff;left:50%;transform:translateX(-1px);z-index:4;pointer-events:none;box-shadow:0 0 10px #0008}
+.chandle span{position:absolute;top:50%;left:50%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;background:#fff;color:#06152e;display:grid;place-items:center;font:700 15px 'Montserrat';line-height:1;box-shadow:0 2px 12px #0009}
+.cframe:not([data-v="slide"]) .chandle{display:none}
+.cframe[data-v="diff"] .ctag.l,.cframe[data-v="diff"] .ctag.r{display:none}
+.cframe[data-v="overlay"] .ctag.r{display:none}
+.chint{font-size:12px;color:#8da6c9;text-align:center;margin:12px 0 0}
+@media(max-width:800px){.cstats{grid-template-columns:1fr 1fr}.cstat b{font-size:24px}.ctabs{gap:16px}.ctabs button{font-size:13px}}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -388,15 +457,26 @@ nav .navlinks a.active{color:#fff;text-shadow:0 0 14px #35caff}
 </section><section class="section" id="technology"><div class="section-head"><div><div class="kicker">NĂNG LỰC CỐT LÕI</div><h2>Công nghệ phân tích cốt lõi</h2></div></div>
 <div class="feature-grid"><div class="feature"><div class="ico">◉</div><h3>Nhận diện hình ảnh AI</h3><p>Phân loại ảnh thành ẢNH THẬT hoặc ẢNH AI, hiển thị xác suất dự đoán từ mô hình học máy.</p></div><div class="feature"><div class="ico">⌁</div><h3>Giải thích dự đoán bằng Grad-CAM</h3><p>Bản đồ nhiệt làm nổi bật vùng ảnh có ảnh hưởng đến dự đoán, hỗ trợ giải thích kết quả.</p></div><div class="feature"><div class="ico">▧</div><h3>Phân tích khác biệt hình ảnh</h3><p>So sánh ảnh gốc và ảnh chỉnh sửa, hiển thị vùng sai biệt và tỷ lệ pixel thay đổi.</p></div><div class="feature"><div class="ico">⌘</div><h3>Đánh giá độ bền mô hình</h3><p>Đánh giá độ bền mô hình trước nén JPEG, resize, blur, nhiễu và các biến đổi ảnh.</p></div><div class="feature"><div class="ico">∿</div><h3>Phân tích tần số</h3><p>Hiển thị phổ tần số FFT để hỗ trợ quan sát các dấu vết bất thường trong ảnh.</p></div><div class="feature"><div class="ico">▥</div><h3>Đánh giá mô hình</h3><p>Theo dõi Accuracy, Precision, Recall, F1-Score và ma trận nhầm lẫn trên tập kiểm thử.</p></div></div>
 </section><section class="section" id="pipeline"><div class="section-head"><div><div class="kicker">CÁCH HỆ THỐNG HOẠT ĐỘNG</div><h2>Quy trình xử lý của hệ thống</h2><p class="sub">Theo hướng triển khai được mô tả trong đề tài Machine Learning của nhóm.</p></div></div><div class="pipeline"><span class="step">Bộ dữ liệu ảnh thật / AI</span><span class="arrow">→</span><span class="step">Đổi kích thước 224×224 · Chuẩn hóa</span><span class="arrow">→</span><span class="step">CLIP + FFT Ensemble</span><span class="arrow">→</span><span class="step">Véc-tơ 512 chiều CLIP kết hợp 64 đặc trưng FFT</span><span class="arrow">→</span><span class="step">Lớp kết nối đầy đủ</span><span class="arrow">→</span><span class="step">Sigmoid</span><span class="arrow">→</span><span class="step">Ảnh thật / Ảnh AI</span></div></section></main><main class="page" id="page-detect"><section class="section"><div class="section-head"><div><div class="kicker">XÁC THỰC HÌNH ẢNH</div><h2>Nhận diện hình ảnh AI</h2><p class="sub">Tải lên một hình ảnh để phân loại ẢNH THẬT hoặc ẢNH AI và xem giải thích bằng Grad-CAM.</p></div></div></section><div class="workspace"><div class="panel active" id="detect">
-<div class="upload-grid"><div class="drop" id="detectDrop"><img class="preview" id="detectPreview"/><div class="upload-icon">↑</div><strong>Kéo thả hoặc chọn ảnh cần phân tích</strong><p>Hỗ trợ JPG, JPEG, PNG, WEBP · Ảnh màu RGB</p><div class="filemeta" id="detectName">CHƯA CÓ TỆP ĐƯỢC CHỌN</div><input accept="image/png,image/jpeg,image/webp" id="detectFile" type="file"/></div>
-<div class="drop" style="align-items:flex-start;text-align:left;padding:23px"><span class="kicker">QUY TRÌNH PHÂN TÍCH</span><h3 style="font-size:17px;margin:12px 0 4px">Từ pixel đến kết luận</h3><p>Ảnh được chuẩn hóa về 224×224 RGB, đưa qua CLIP + FFT Ensemble để trích xuất vector đặc trưng 512 chiều CLIP kết hợp 64 đặc trưng FFT.</p><div class="pipeline" style="margin-top:8px"><span class="step">Ảnh đầu vào</span><span class="arrow">→</span><span class="step">CLIP + FFT Ensemble</span><span class="arrow">→</span><span class="step">Sigmoid</span><span class="arrow">→</span><span class="step">Ảnh thật / Ảnh AI</span></div><p style="margin-top:18px">Kết quả dự kiến gồm nhãn, xác suất, phổ tần số và bản đồ Grad-CAM giải thích vùng ảnh mô hình chú ý.</p></div></div>
-<div class="controlrow"><div><span class="hint">Mô hình phân loại  </span><select class="select" id="model"><option>CLIP + FFT · Ensemble</option><option>CLIP Feature Extractor</option></select></div><button class="primary" id="analyzeBtn">Phân tích ảnh ↗</button></div>
-<div class="result" id="detectResult"><div class="resulttop"><span class="pill" id="veraResultStatus">ĐANG CHỜ KẾT NỐI API</span><span class="hint">Kết quả được trả về từ mô hình CLIP + FFT Ensemble</span></div><h3 id="veraVerdict">Chưa phân tích ảnh</h3><p class="sub" id="veraDetail">Tải ảnh lên, sau đó bấm Phân tích ảnh để gửi ảnh đến máy chủ VERA AI.</p><div class="resultgrid"><div class="mini"><small>NHÃN DỰ ĐOÁN</small><b id="veraLabel">Chưa có</b></div><div class="mini"><small>ĐỘ TIN CẬY</small><b id="veraConfidence">—</b></div><div class="mini"><small>XÁC SUẤT ẢNH AI</small><b id="veraAiProbability">—</b></div></div><div class="warning">⚠ Kết quả phân loại mang tính xác suất, không phải bằng chứng pháp lý. Không sử dụng kết quả minh họa này để kết luận ảnh thật hay ảnh AI.</div></div>
+<div class="upload-grid"><div class="drop" id="detectDrop"><div class="upload-icon">↑</div><strong id="detectTitle">Kéo thả hoặc chọn nhiều ảnh cần phân tích</strong><p>Hỗ trợ JPG, JPEG, PNG, WEBP · Chọn được nhiều ảnh cùng lúc</p><div class="filemeta" id="detectName">CHƯA CÓ TỆP ĐƯỢC CHỌN</div><input accept="image/png,image/jpeg,image/webp" id="detectFile" multiple type="file"/></div>
+<div class="drop sumbox" id="summaryBox"><div class="sumhead"><span class="kicker">TỔNG HỢP</span><span class="sumnote" id="sumNote">0/0 ảnh đã xử lý</span></div>
+<div class="sumstats"><div><small>Tổng số ảnh</small><b id="sumTotal">0</b></div><div><small>Ảnh AI</small><b class="c-ai" id="sumAi">0</b></div><div><small>Ảnh thật</small><b class="c-real" id="sumReal">0</b></div></div>
+<div class="sumbar"><span class="sb-ai" id="sumBarAi"></span><span class="sb-real" id="sumBarReal"></span></div>
+<div class="sumfoot"><span>Tỷ lệ AI: <b id="sumRatio">—</b></span><span>Ngưỡng <b id="sumThr">—</b></span></div></div></div>
+<div class="controlrow"><div><span class="hint">Mô hình phân loại  </span><select class="select" id="model"><option>CLIP + FFT · Ensemble</option><option>CLIP Feature Extractor</option></select></div><button class="primary" id="analyzeBtn">Phân tích ảnh ↗</button></div>
+<div class="results-sec" id="resultsSec"><div class="rtoolbar"><div class="rtabs" id="rtabs"><button class="active" data-f="all" type="button">Tất cả (0)</button><button data-f="ai" type="button">Ảnh AI (0)</button><button data-f="real" type="button">Ảnh thật (0)</button></div><div class="rright"><input id="searchBox" placeholder="Tìm tên file..." type="search"/><button class="rbtn" id="clearBtn" type="button">Xóa tất cả</button><button class="rbtn gold" id="csvBtn" type="button">⭳ Tải kết quả CSV</button></div></div><div class="rgrid" id="rgrid"></div><div class="warning">⚠ Kết quả phân loại mang tính xác suất, không phải bằng chứng pháp lý.</div></div>
 </div></div></main><main class="page" id="page-compare"><section class="section"><div class="section-head"><div><div class="kicker">SO SÁNH HÌNH ẢNH</div><h2>Phân tích và so sánh hình ảnh</h2><p class="sub">Tải lên hai hình ảnh để xác định vùng khác biệt. Ảnh 1 được dùng làm ảnh mốc; ảnh 2 là ảnh đem so sánh.</p></div></div></section><div class="workspace"><div class="panel active" id="compare">
 <p class="sub">Đưa ảnh gốc và ảnh đã chỉnh sửa vào hai khung. Công cụ demo sẽ so sánh sai biệt pixel, ước lượng tỷ lệ vùng thay đổi và tạo bản đồ nhiệt trực quan ngay trên trình duyệt.</p>
 <div class="upload-grid"><div class="drop"><img class="preview" id="originalPreview"/><div class="upload-icon">＋</div><strong>Ảnh gốc</strong><p>Chọn ảnh ban đầu để làm mốc so sánh</p><div class="filemeta" id="originalName">ORIGINAL IMAGE</div><input accept="image/png,image/jpeg,image/webp" id="originalFile" type="file"/></div><div class="drop"><img class="preview" id="editedPreview"/><div class="upload-icon">✎</div><strong>Ảnh đã chỉnh sửa</strong><p>Chọn ảnh sau khi chỉnh sửa, nén hoặc thay đổi</p><div class="filemeta" id="editedName">EDITED IMAGE</div><input accept="image/png,image/jpeg,image/webp" id="editedFile" type="file"/></div></div>
 <div class="compare-controls"><label>Ngưỡng phát hiện thay đổi <input id="threshold" max="80" min="8" type="range" value="28"/> <b id="thresholdVal">28</b></label><label>Độ nhạy bản đồ nhiệt <input id="sensitivity" max="5" min="1" type="range" value="3"/> <b id="sensitivityVal">3</b></label><button class="primary" id="compareBtn">So sánh hai ảnh ↗</button></div>
-<div class="compare-result" id="compareResult"><div class="compare-visual"><div class="canvasbox"><h4>ẢNH GỐC</h4><canvas height="300" id="canvasA" width="480"></canvas></div><div class="canvasbox"><h4>BẢN ĐỒ NHIỆT · VÙNG KHÁC BIỆT</h4><canvas height="300" id="canvasHeat" width="480"></canvas></div></div><div class="metrics"><div class="mini"><small>TỶ LỆ PIXEL THAY ĐỔI</small><b id="changedRatio">—</b></div><div class="mini"><small>SAI BIỆT MÀU TRUNG BÌNH</small><b id="meanDiff">—</b></div><div class="mini"><small>KÍCH THƯỚC SO SÁNH</small><b id="compareSize">—</b></div></div><p class="warning">Lưu ý: So sánh pixel cần hai ảnh cùng nội dung, cùng góc nhìn và căn chỉnh tương đối. Khác biệt có thể đến từ resize, nén JPEG, ánh sáng hoặc vị trí ảnh; không đồng nghĩa chắc chắn có chỉnh sửa nội dung.</p><button class="secondary" id="downloadReport" style="margin-top:12px">Tải báo cáo so sánh ↓</button></div>
+<div class="compare-result" id="compareResult">
+<div class="cstats"><div class="cstat"><small>Vùng thay đổi</small><b id="cRatio">—</b></div><div class="cstat"><small>Sai biệt trung bình</small><b><span id="cMean">—</span><i>/255</i></b></div><div class="cstat"><small>Xác suất ảnh sửa là AI</small><b id="cAiProb">—</b></div><div class="cstat"><small>Mức độ thay đổi</small><b class="clevel" id="cLevel">—</b></div></div>
+<div class="ctabs" id="ctabs"><button class="active" data-v="slide" type="button">Kéo so sánh</button><button data-v="overlay" type="button">Chồng nhiệt</button><button data-v="diff" type="button">Bản đồ sai biệt</button></div>
+<div class="cview" id="cview">
+<div class="cframe" id="cframe"><canvas id="cvOrig"></canvas><canvas id="cvEdit"></canvas><canvas id="cvOverlay"></canvas><canvas id="cvDiff"></canvas>
+<span class="ctag l" id="tagL">Ảnh gốc</span><span class="ctag r" id="tagR">Đã chỉnh sửa</span>
+<div class="chandle" id="chandle"><span>↔</span></div></div>
+<p class="chint" id="chint">Kéo thanh trượt để so sánh ảnh gốc và ảnh đã chỉnh sửa.</p></div>
+<p class="warning">Lưu ý: So sánh pixel cần hai ảnh cùng nội dung, cùng góc nhìn và căn chỉnh tương đối. Khác biệt có thể đến từ resize, nén JPEG, ánh sáng hoặc vị trí ảnh; không đồng nghĩa chắc chắn có chỉnh sửa nội dung.</p><button class="secondary" id="downloadReport" style="margin-top:12px">Tải báo cáo so sánh ↓</button></div>
 </div></div></main></div><footer><div><b style="color:#b7dfff">VERA AI</b> · TRÍ TUỆ HÌNH ẢNH PLATFORM</div><div>Machine Learning Project · CLIP + FFT Ensemble · Streamlit-ready UI</div></footer>
 </div>
 <script>
@@ -416,48 +496,162 @@ document.querySelectorAll('[data-page]').forEach(link=>{
 const $=id=>document.getElementById(id);
 let detectImage=null, originalImage=null, editedImage=null, lastReport='';
 function loadPreview(inputId,previewId,nameId,callback){$(inputId).addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const url=URL.createObjectURL(f),img=$(previewId);img.src=url;img.style.display='block';img.parentElement.querySelector('.upload-icon').style.display='none';img.parentElement.querySelector('strong').textContent=f.name;$(nameId).textContent=(f.size/1024).toFixed(1)+' KB · '+f.type;const im=new Image();im.onload=()=>callback(im);im.src=url;});}
-loadPreview('detectFile','detectPreview','detectName',im=>detectImage=im);
 loadPreview('originalFile','originalPreview','originalName',im=>originalImage=im);
 loadPreview('editedFile','editedPreview','editedName',im=>editedImage=im);
 
 // Địa chỉ backend sau khi triển khai. Ví dụ: https://vera-ai-api.onrender.com
 const VERA_API_URL = (window.VERA_API_URL || (location.protocol==='file:' ? 'http://127.0.0.1:8000' : location.origin)).replace(/\/$/, '');
+const detectItems=[];let detectFilter='all',detectQuery='',detectRunning=false,detectModel='',detectThreshold=null,detectSeq=0;
+const escH=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function addDetectFiles(list){
+  Array.from(list).forEach(f=>{
+    if(!/^image\/(png|jpe?g|webp)$/i.test(f.type))return;
+    if(detectItems.some(i=>i.file.name===f.name&&i.file.size===f.size&&i.file.lastModified===f.lastModified))return;
+    const it={id:++detectSeq,file:f,url:URL.createObjectURL(f),status:'pending'};
+    const el=document.createElement('div');el.className='rcard';
+    el.innerHTML='<div class="rimg"><img alt=""/></div><button class="rx" title="Xóa ảnh" type="button">✕</button><div class="rinfo"><div class="rname"></div><div class="rrow"><span class="rlabel"></span><span class="rpct"></span></div></div>';
+    el.querySelector('img').src=it.url;
+    el.querySelector('.rname').textContent=f.name;el.querySelector('.rname').title=f.name;
+    el.querySelector('.rx').onclick=()=>{if(it.status==='processing')return;URL.revokeObjectURL(it.url);el.remove();detectItems.splice(detectItems.indexOf(it),1);refreshDetectUI();};
+    it.el=el;$('rgrid').appendChild(el);detectItems.push(it);paintCard(it);
+  });
+  refreshDetectUI();
+}
+function paintCard(it){
+  const l=it.el.querySelector('.rlabel'),p=it.el.querySelector('.rpct');
+  l.className='rlabel';p.textContent='—';l.title='';
+  if(it.status==='pending'){l.textContent='Chờ phân tích';}
+  else if(it.status==='processing'){l.textContent='Đang phân tích…';l.classList.add('busy');}
+  else if(it.status==='error'){l.textContent='Lỗi';l.classList.add('err');l.title=it.error||'';}
+  else{l.textContent=it.status==='ai'?'Ảnh AI':'Ảnh thật';l.classList.add(it.status);p.textContent=Math.round(it.conf*100)+'%';}
+}
+function refreshDetectUI(){
+  const n=detectItems.length,ai=detectItems.filter(i=>i.status==='ai').length,real=detectItems.filter(i=>i.status==='real').length,err=detectItems.filter(i=>i.status==='error').length,done=ai+real;
+  $('sumTotal').textContent=n;$('sumAi').textContent=ai;$('sumReal').textContent=real;
+  $('sumNote').textContent=done+'/'+n+' ảnh đã xử lý'+(err?' · '+err+' lỗi':'')+(detectModel?' · '+detectModel:'');
+  $('sumRatio').textContent=done?(ai/done*100).toFixed(1)+'%':'—';
+  $('sumThr').textContent=detectThreshold!==null&&!isNaN(detectThreshold)?detectThreshold.toFixed(3):'—';
+  $('sumBarAi').style.width=done?(ai/done*100)+'%':'0';$('sumBarReal').style.width=done?(real/done*100)+'%':'0';
+  const tabs=$('rtabs').querySelectorAll('button');
+  tabs[0].textContent='Tất cả ('+n+')';tabs[1].textContent='Ảnh AI ('+ai+')';tabs[2].textContent='Ảnh thật ('+real+')';
+  $('resultsSec').classList.toggle('show',n>0);
+  $('detectName').textContent=n?(detectItems.reduce((s,i)=>s+i.file.size,0)/1024).toFixed(1)+' KB · '+n+' ảnh':'CHƯA CÓ TỆP ĐƯỢC CHỌN';
+  $('detectTitle').textContent=n?'Đã chọn '+n+' ảnh · kéo thả hoặc chọn thêm':'Kéo thả hoặc chọn nhiều ảnh cần phân tích';
+  applyDetectFilter();
+}
+function applyDetectFilter(){
+  const q=detectQuery.trim().toLowerCase();let shown=0;
+  detectItems.forEach(i=>{
+    const okF=detectFilter==='all'||i.status===detectFilter,okQ=!q||i.file.name.toLowerCase().includes(q);
+    i.el.hidden=!(okF&&okQ);if(okF&&okQ)shown++;
+  });
+  let e=$('rgrid').querySelector('.rempty');
+  if(!shown&&detectItems.length){if(!e){e=document.createElement('div');e.className='rempty';$('rgrid').appendChild(e);}e.textContent='Không có ảnh phù hợp.';}
+  else if(e)e.remove();
+}
+$('detectFile').addEventListener('change',e=>{addDetectFiles(e.target.files);e.target.value='';});
+$('rtabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;detectFilter=b.dataset.f;$('rtabs').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));applyDetectFilter();});
+$('searchBox').addEventListener('input',e=>{detectQuery=e.target.value;applyDetectFilter();});
+$('clearBtn').onclick=()=>{if(detectRunning)return;detectItems.splice(0).forEach(i=>{URL.revokeObjectURL(i.url);i.el.remove();});detectThreshold=null;detectModel='';refreshDetectUI();};
+function csvCell(v){v=String(v==null?'':v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+$('csvBtn').onclick=()=>{
+  if(!detectItems.length){alert('Chưa có ảnh nào để xuất.');return;}
+  const rows=[['STT','Tên file','Kết quả','Xác suất ảnh AI (%)','Độ tin cậy (%)','Mô hình','Ngưỡng phân loại']];
+  detectItems.forEach((i,k)=>{
+    const kq=i.status==='ai'?'Ảnh AI':i.status==='real'?'Ảnh thật':i.status==='error'?'Lỗi':i.status==='processing'?'Đang phân tích':'Chưa phân tích';
+    const ok=i.status==='ai'||i.status==='real';
+    rows.push([k+1,i.file.name,kq,ok?(i.ai*100).toFixed(2):'',ok?(i.conf*100).toFixed(2):'',ok?i.model:'',ok&&!isNaN(i.thr)?i.thr.toFixed(3):'']);
+  });
+  const blob=new Blob(['\ufeff'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='vera-ai-ket-qua-nhan-dien.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+};
 $('analyzeBtn').onclick=async()=>{
-  const file=$('detectFile').files[0];
-  if(!file){alert('Vui lòng tải ảnh lên trước.');return;}
-  const btn=$('analyzeBtn'); btn.disabled=true; btn.textContent='Đang phân tích…';
-  $('detectResult').classList.add('show'); $('detectResult').scrollIntoView({behavior:'smooth',block:'nearest'});
-  $('veraResultStatus').textContent='ĐANG GỬI ẢNH ĐẾN MÁY CHỦ';
-  $('veraVerdict').textContent='Đang phân tích hình ảnh…'; $('veraDetail').textContent='Vui lòng chờ mô hình xử lý.';
+  if(detectRunning)return;
+  if(!detectItems.length){alert('Vui lòng tải ảnh lên trước.');return;}
+  const todo=detectItems.filter(i=>i.status==='pending'||i.status==='error');
+  if(!todo.length){alert('Tất cả ảnh đã được phân tích.');return;}
+  const btn=$('analyzeBtn'); detectRunning=true; btn.disabled=true;
+  let k=0;
+  for(const it of todo){
+    k++; btn.textContent='Đang phân tích '+k+'/'+todo.length+'…';
+    it.status='processing'; paintCard(it); refreshDetectUI();
+    try{
+      const file=it.file;
+      const body=new FormData(); body.append('file',file);
+      const response=await fetch(VERA_API_URL+'/api/predict',{method:'POST',body});
+      const data=await response.json();
+      if(!response.ok) throw new Error(data.detail || 'Máy chủ không thể phân tích ảnh.');
+      const ai=Number(data.ai_probability), conf=Number(data.confidence);
+      it.ai=ai; it.conf=isNaN(conf)?(data.label==='AI'?ai:1-ai):conf;
+      it.model=data.model||'CLIP + FFT Ensemble'; it.thr=Number(data.threshold);
+      it.status=data.label==='AI'?'ai':'real';
+      detectModel=it.model; if(!isNaN(it.thr)) detectThreshold=it.thr;
+    }catch(err){
+      it.status='error'; it.error=err.message+' Hãy kiểm tra backend và địa chỉ VERA_API_URL.';
+    }
+    paintCard(it); refreshDetectUI();
+  }
+  detectRunning=false; btn.disabled=false; btn.textContent='Phân tích ảnh ↗';
+};
+$('threshold').oninput=e=>$('thresholdVal').textContent=e.target.value;
+$('sensitivity').oninput=e=>$('sensitivityVal').textContent=e.target.value;
+function drawFit(ctx,img,w,h){ctx.fillStyle='#020813';ctx.fillRect(0,0,w,h);const s=Math.min(w/img.width,h/img.height),dw=img.width*s,dh=img.height*s;ctx.drawImage(img,(w-dw)/2,(h-dh)/2,dw,dh);}
+let cmpData=null, cmpView='slide', cmpAiKey='', cmpAiVal=null;
+function infernoRGB(t){const st=[[0,0,4],[40,11,84],[101,21,110],[159,42,99],[212,72,66],[245,125,21],[250,193,39],[252,255,164]];t=Math.max(0,Math.min(1,t))*(st.length-1);const i=Math.min(st.length-2,Math.floor(t)),f=t-i,A=st[i],B=st[i+1];return [A[0]+(B[0]-A[0])*f,A[1]+(B[1]-A[1])*f,A[2]+(B[2]-A[2])*f];}
+function cmpLevel(r){return r<5?['Thay đổi nhỏ','low']:r<25?['Thay đổi vừa','mid']:['Thay đổi trên diện rộng','high'];}
+function setCmpView(v){cmpView=v;$('cframe').dataset.v=v;$('ctabs').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.v===v));
+  $('chint').textContent=v==='slide'?'Kéo thanh trượt để so sánh ảnh gốc và ảnh đã chỉnh sửa.':v==='overlay'?'Vùng sáng/nóng hiển thị nơi hai ảnh khác nhau, chồng lên ảnh gốc.':'Bản đồ sai biệt: màu càng sáng thì hai ảnh càng khác nhau.';}
+function setSlide(pct){pct=Math.max(0,Math.min(100,pct));$('cvEdit').style.clipPath='inset(0 0 0 '+pct+'%)';$('chandle').style.left=pct+'%';}
+function renderCompare(){
+  if(!originalImage||!editedImage)return;
+  const long=720,sc=Math.min(1,long/Math.max(originalImage.width,originalImage.height)),w=Math.max(16,Math.round(originalImage.width*sc)),h=Math.max(16,Math.round(originalImage.height*sc));
+  const cO=$('cvOrig'),cE=$('cvEdit'),cL=$('cvOverlay'),cD=$('cvDiff');
+  [cO,cE,cL,cD].forEach(c=>{c.width=w;c.height=h;});
+  const xo=cO.getContext('2d',{willReadFrequently:true}),xe=cE.getContext('2d',{willReadFrequently:true});
+  xo.drawImage(originalImage,0,0,w,h);xe.drawImage(editedImage,0,0,w,h);
+  const da=xo.getImageData(0,0,w,h).data,db=xe.getImageData(0,0,w,h).data,threshold=+$('threshold').value,sens=+$('sensitivity').value;
+  const ol=cL.getContext('2d'),dd=cD.getContext('2d'),oi=ol.createImageData(w,h),di=dd.createImageData(w,h);
+  let changed=0,sum=0,total=w*h;
+  for(let i=0;i<da.length;i+=4){
+    const d=(Math.abs(da[i]-db[i])+Math.abs(da[i+1]-db[i+1])+Math.abs(da[i+2]-db[i+2]))/3;sum+=d;if(d>threshold)changed++;
+    const t=Math.min(1,d*sens*2.1/255),c=infernoRGB(t);
+    di.data[i]=c[0];di.data[i+1]=c[1];di.data[i+2]=c[2];di.data[i+3]=255;
+    oi.data[i]=c[0];oi.data[i+1]=c[1];oi.data[i+2]=c[2];oi.data[i+3]=d>threshold?Math.round(110+t*120):Math.round(t*70);
+  }
+  ol.putImageData(oi,0,0);dd.putImageData(di,0,0);
+  const ratio=changed/total*100,mean=sum/total,lv=cmpLevel(ratio);
+  $('cRatio').textContent=ratio.toFixed(1)+'%';$('cMean').textContent=mean.toFixed(1);
+  $('cLevel').textContent=lv[0];$('cLevel').className='clevel '+lv[1];
+  cmpData={ratio,mean,w,h,threshold,sens,level:lv[0]};
+  updateCmpReport();
+}
+function updateCmpReport(){if(!cmpData)return;const d=cmpData;
+  lastReport=`VERA AI — BÁO CÁO SO SÁNH ẢNH\nVùng thay đổi: ${d.ratio.toFixed(2)}%\nSai biệt màu trung bình: ${d.mean.toFixed(2)}/255\nXác suất ảnh sửa là AI: ${cmpAiVal===null?'—':(cmpAiVal*100).toFixed(2)+'%'}\nMức độ thay đổi: ${d.level}\nKích thước chuẩn hóa: ${d.w}x${d.h}\nNgưỡng: ${d.threshold}\nĐộ nhạy: ${d.sens}\nLưu ý: Đây là so sánh pixel trên ảnh đã chuẩn hóa, không kết luận nguồn gốc ảnh hay xác định chắc chắn thao tác chỉnh sửa.`;}
+async function fetchEditedAi(){
+  const file=$('editedFile').files[0];if(!file)return;
+  const key=file.name+'|'+file.size+'|'+file.lastModified;
+  if(key===cmpAiKey&&cmpAiVal!==null){$('cAiProb').textContent=(cmpAiVal*100).toFixed(1)+'%';return;}
+  $('cAiProb').textContent='…';cmpAiVal=null;
   try{
     const body=new FormData(); body.append('file',file);
     const response=await fetch(VERA_API_URL+'/api/predict',{method:'POST',body});
     const data=await response.json();
     if(!response.ok) throw new Error(data.detail || 'Máy chủ không thể phân tích ảnh.');
-    const ai=Number(data.ai_probability), conf=Number(data.confidence);
-    $('veraResultStatus').textContent='PHÂN TÍCH THÀNH CÔNG';
-    $('veraVerdict').textContent=data.label==='AI'?'Kết quả: ẢNH DO AI TẠO':'Kết quả: ẢNH THẬT';
-    $('veraLabel').textContent=data.label==='AI'?'Ảnh AI':'Ảnh thật';
-    $('veraConfidence').textContent=(conf*100).toFixed(2)+'%';
-    $('veraAiProbability').textContent=(ai*100).toFixed(2)+'%';
-    $('veraDetail').textContent='Mô hình: '+(data.model||'CLIP + FFT Ensemble')+' · Ngưỡng phân loại: '+(Number(data.threshold)*100).toFixed(2)+'%';
-  }catch(err){
-    $('veraResultStatus').textContent='KHÔNG KẾT NỐI ĐƯỢC API';
-    $('veraVerdict').textContent='Chưa thể đưa ra kết luận';
-    $('veraLabel').textContent='Lỗi kết nối'; $('veraConfidence').textContent='—'; $('veraAiProbability').textContent='—';
-    $('veraDetail').textContent=err.message+' Hãy kiểm tra backend và địa chỉ VERA_API_URL.';
-  }finally{btn.disabled=false;btn.textContent='Phân tích ảnh ↗';}
-};
-$('threshold').oninput=e=>$('thresholdVal').textContent=e.target.value;
-$('sensitivity').oninput=e=>$('sensitivityVal').textContent=e.target.value;
-function drawFit(ctx,img,w,h){ctx.fillStyle='#020813';ctx.fillRect(0,0,w,h);const s=Math.min(w/img.width,h/img.height),dw=img.width*s,dh=img.height*s;ctx.drawImage(img,(w-dw)/2,(h-dh)/2,dw,dh);}
+    cmpAiVal=Number(data.ai_probability);cmpAiKey=key;
+    $('cAiProb').textContent=(cmpAiVal*100).toFixed(1)+'%';
+  }catch(err){cmpAiVal=null;$('cAiProb').textContent='—';$('cAiProb').title=err.message;}
+  updateCmpReport();
+}
 $('compareBtn').onclick=()=>{if(!originalImage||!editedImage){alert('Vui lòng tải cả ảnh gốc và ảnh đã chỉnh sửa.');return;}
-const w=320,h=220,a=document.createElement('canvas'),b=document.createElement('canvas');a.width=b.width=w;a.height=b.height=h;const ca=a.getContext('2d',{willReadFrequently:true}),cb=b.getContext('2d',{willReadFrequently:true});drawFit(ca,originalImage,w,h);drawFit(cb,editedImage,w,h);const da=ca.getImageData(0,0,w,h).data,db=cb.getImageData(0,0,w,h).data,threshold=+$('threshold').value,sens=+$('sensitivity').value;let changed=0,total=0,sum=0;
-const heat= document.createElement('canvas');heat.width=w;heat.height=h;const ch=heat.getContext('2d'),out=ch.createImageData(w,h);
-for(let i=0;i<da.length;i+=4){const d=(Math.abs(da[i]-db[i])+Math.abs(da[i+1]-db[i+1])+Math.abs(da[i+2]-db[i+2]))/3;sum+=d;if(d>threshold)changed++;const v=Math.min(255,d*sens*2.1);out.data[i]=Math.min(255,v*1.2);out.data[i+1]=Math.max(0,90-v*.35);out.data[i+2]=Math.max(0,220-v);out.data[i+3]=d>threshold?210:28;total++;}
-ch.putImageData(out,0,0);const cA=$('canvasA').getContext('2d'),cH=$('canvasHeat').getContext('2d');cA.clearRect(0,0,480,300);cH.clearRect(0,0,480,300);cA.drawImage(a,0,0,480,300);cH.drawImage(a,0,0,480,300);cH.drawImage(heat,0,0,480,300);
-const ratio=changed/total*100,mean=sum/total;$('changedRatio').textContent=ratio.toFixed(1)+'%';$('meanDiff').textContent=mean.toFixed(1)+' / 255';$('compareSize').textContent=w+' × '+h+' px';$('compareResult').classList.add('show');
-lastReport=`VERA AI — BÁO CÁO SO SÁNH ẢNH\nTỷ lệ pixel thay đổi: ${ratio.toFixed(2)}%\nSai biệt màu trung bình: ${mean.toFixed(2)}/255\nKích thước chuẩn hóa: ${w}x${h}\nNgưỡng: ${threshold}\nĐộ nhạy: ${sens}\nLưu ý: Đây là so sánh pixel trên ảnh đã chuẩn hóa, không kết luận nguồn gốc ảnh hay xác định chắc chắn thao tác chỉnh sửa.`;$('compareResult').scrollIntoView({behavior:'smooth',block:'nearest'});};
+  renderCompare();setCmpView('slide');setSlide(50);$('compareResult').classList.add('show');
+  fetchEditedAi();$('compareResult').scrollIntoView({behavior:'smooth',block:'nearest'});};
+$('ctabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setCmpView(b.dataset.v);});
+['threshold','sensitivity'].forEach(id=>$(id).addEventListener('change',()=>{if($('compareResult').classList.contains('show'))renderCompare();}));
+(function(){const fr=$('cframe');let drag=false;
+  const move=x=>{const r=fr.getBoundingClientRect();setSlide((x-r.left)/r.width*100);};
+  fr.addEventListener('pointerdown',e=>{if(cmpView!=='slide')return;drag=true;fr.setPointerCapture(e.pointerId);move(e.clientX);});
+  fr.addEventListener('pointermove',e=>{if(drag)move(e.clientX);});
+  ['pointerup','pointercancel'].forEach(t=>fr.addEventListener(t,()=>drag=false));})();
 $('downloadReport').onclick=()=>{if(!lastReport)return;const blob=new Blob([lastReport],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='vera-ai-image-comparison.txt';a.click();URL.revokeObjectURL(url);};
 </script>
 </body></html>
