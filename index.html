@@ -421,7 +421,7 @@ loadPreview('originalFile','originalPreview','originalName',im=>originalImage=im
 loadPreview('editedFile','editedPreview','editedName',im=>editedImage=im);
 
 // Địa chỉ backend sau khi triển khai. Ví dụ: https://vera-ai-api.onrender.com
-const VERA_API_URL = (window.VERA_API_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+const VERA_API_URL = (window.VERA_API_URL || (location.protocol==='file:' ? 'http://127.0.0.1:8000' : location.origin)).replace(/\/$/, '');
 $('analyzeBtn').onclick=async()=>{
   const file=$('detectFile').files[0];
   if(!file){alert('Vui lòng tải ảnh lên trước.');return;}
