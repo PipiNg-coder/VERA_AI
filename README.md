@@ -1,3 +1,12 @@
+---
+title: VERA AI API
+emoji: 🔎
+colorFrom: blue
+colorTo: cyan
+sdk: docker
+app_port: 7860
+---
+
 # VERA AI — Website + Inference API
 
 Repository gồm giao diện HTML tĩnh và API Python để dự đoán ảnh REAL/AI bằng **CLIP + FFT/SRM + ensemble**. Mình đã đối chiếu file huấn luyện gốc: mô hình thực tế là CLIP + FFT ensemble, không phải ResNet50; vì vậy giao diện đã được sửa để tránh mô tả sai kiến trúc.
